@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="src/LedgerFlowWeb.Api/LedgerFlowWeb.Api.csproj" />
+  <Project Path="src/LedgerFlowWeb.Domain/LedgerFlowWeb.Domain.csproj" />
+  <Project Path="src/LedgerFlowWeb.Infrastructure/LedgerFlowWeb.Infrastructure.csproj" />
+  <Project Path="src/LedgerFlowWeb.Worker/LedgerFlowWeb.Worker.csproj" Id="89558521-48ed-4f34-84ef-6e5a98a77349" />
+</Solution>
