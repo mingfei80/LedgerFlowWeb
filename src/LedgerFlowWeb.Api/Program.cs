@@ -11,6 +11,7 @@ namespace LedgerFlowWeb.Api;
 
 public class Program
 {
+    const string AllowReactAppPolicy = "AllowReactApp";
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);
@@ -85,7 +86,7 @@ public class Program
         
         builder.Services.AddCors(options =>
         {
-            options.AddPolicy("AllowReactApp", policy =>
+            options.AddPolicy(AllowReactAppPolicy, policy =>
             {
                 policy.WithOrigins("http://localhost:64003") // Your React app URL
                       .AllowAnyHeader()
@@ -140,7 +141,7 @@ public class Program
             await next();
         });
 
-        app.UseCors("AllowReactApp");
+        app.UseCors(AllowReactAppPolicy);
 
         app.UseAuthentication();
         app.UseAuthorization();
