@@ -1,4 +1,8 @@
 <Solution>
+  <Project Path="LedgerFlowWeb.Frontend/ledgerflowweb.frontend.esproj">
+    <Build />
+    <Deploy />
+  </Project>
   <Project Path="LedgerFlowWeb.Ingestion/LedgerFlowWeb.Ingestion.csproj" Id="3c912cdd-f5ac-43f3-916c-976622ef3eca" />
   <Project Path="src/LedgerFlowWeb.Api/LedgerFlowWeb.Api.csproj" />
   <Project Path="src/LedgerFlowWeb.Domain/LedgerFlowWeb.Domain.csproj" />
