@@ -13,11 +13,17 @@ const apiScope =
   import.meta.env.VITE_AZURE_API_SCOPE ??
   'api://412586ba-0c3a-4ab9-9062-0c9162c93163/user_impersonation'
 
+const expectedAudience = apiScope.split('/').slice(0, 3).join('/')
+
 export const apiBaseUrl =
   import.meta.env.VITE_API_BASE_URL ?? 'https://localhost:7202'
 
 export const loginRequest = {
-  scopes: ['openid', 'profile', 'email', apiScope],
+  scopes: ['openid', 'profile', 'email'],
+}
+
+const apiTokenRequest = {
+  scopes: [apiScope],
 }
 
 export const msalInstance = new PublicClientApplication({
@@ -57,8 +63,25 @@ export async function initializeMsal() {
 
 function getTokenRequest(account: AccountInfo): SilentRequest {
   return {
-    ...loginRequest,
+    ...apiTokenRequest,
     account,
+  }
+}
+
+function getAudience(accessToken: string): string | null {
+  try {
+    const payload = accessToken.split('.')[1]
+    if (!payload) {
+      return null
+    }
+
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/')
+    const padded = normalized.padEnd(normalized.length + ((4 - (normalized.length % 4)) % 4), '=')
+    const json = JSON.parse(atob(padded)) as { aud?: string }
+
+    return json.aud ?? null
+  } catch {
+    return null
   }
 }
 
@@ -73,6 +96,13 @@ export async function acquireApiAccessToken() {
 
   try {
     const response = await msalInstance.acquireTokenSilent(getTokenRequest(account))
+
+    const aud = getAudience(response.accessToken)
+    if (aud && aud !== expectedAudience && aud !== clientId) {
+      await msalInstance.acquireTokenRedirect(getTokenRequest(account))
+      return null
+    }
+
     return response.accessToken
   } catch (error) {
     if (error instanceof InteractionRequiredAuthError) {

@@ -20,10 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\LedgerFlowWeb.Infrastructure\LedgerFlowWeb.Infrastructure.csproj" />
   </ItemGroup>
 
