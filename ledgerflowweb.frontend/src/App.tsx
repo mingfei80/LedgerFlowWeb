@@ -18,6 +18,9 @@ function App() {
   const [isLoadingProfile, setIsLoadingProfile] = useState(false)
   const [profileData, setProfileData] = useState<string | null>(null)
   const [profileError, setProfileError] = useState<string | null>(null)
+  const [isImporting, setIsImporting] = useState(false)
+  const [importResult, setImportResult] = useState<string | null>(null)
+  const [importError, setImportError] = useState<string | null>(null)
 
   const account = accounts[0]
   const displayName = useMemo(
@@ -33,6 +36,29 @@ function App() {
       await msalInstance.loginRedirect(loginRequest)
     } finally {
       setIsSigningIn(false)
+    }
+  }
+
+  const handleImportIg = async (accountId: number, file: File) => {
+    setIsImporting(true)
+    setImportError(null)
+
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+      formData.append('accountId', String(accountId))
+
+      const result = await callApi('/api/import/ig', {
+        method: 'POST',
+        body: formData,
+      })
+
+      setImportResult(JSON.stringify(result, null, 2))
+    } catch (error) {
+      setImportResult(null)
+      setImportError(error instanceof Error ? error.message : 'Unable to import IG CSV.')
+    } finally {
+      setIsImporting(false)
     }
   }
 
@@ -86,6 +112,10 @@ function App() {
                   isLoadingProfile={isLoadingProfile}
                   profileData={profileData}
                   profileError={profileError}
+                  onImportIg={handleImportIg}
+                  isImporting={isImporting}
+                  importResult={importResult}
+                  importError={importError}
                 />
               }
             />

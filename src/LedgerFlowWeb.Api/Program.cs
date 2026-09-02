@@ -48,41 +48,15 @@ public class Program
                 validAudiences.Add($"api://{clientId}");
             }
 
-            var allowedAudiences = validAudiences.Distinct(StringComparer.OrdinalIgnoreCase).ToHashSet(StringComparer.OrdinalIgnoreCase);
-            options.TokenValidationParameters.ValidAudiences = allowedAudiences;
-            options.TokenValidationParameters.ValidateAudience = false;
-
-            options.Events = new JwtBearerEvents
-            {
-                OnMessageReceived = context =>
-                {
-                    var authHeader = context.Request.Headers.Authorization.ToString();
-                    Console.WriteLine($"[AuthDebug] Path={context.Request.Path}, HasAuthHeader={!string.IsNullOrWhiteSpace(authHeader)}, HeaderPrefix={(authHeader.Length > 20 ? authHeader[..20] : authHeader)}");
-                    return Task.CompletedTask;
-                },
-                OnTokenValidated = context =>
-                {
-                    var aud = context.Principal?.FindFirst("aud")?.Value ?? "(none)";
-                    var tid = context.Principal?.FindFirst("tid")?.Value ?? "(none)";
-                    Console.WriteLine($"[AuthDebug] Token validated. aud={aud}, tid={tid}");
-                    return Task.CompletedTask;
-                },
-                OnAuthenticationFailed = context =>
-                {
-                    Console.WriteLine($"[AuthDebug] Authentication failed: {context.Exception.Message}");
-                    return Task.CompletedTask;
-                },
-                OnChallenge = context =>
-                {
-                    Console.WriteLine($"[AuthDebug] Challenge. Error={context.Error}, Description={context.ErrorDescription}");
-                    return Task.CompletedTask;
-                }
-            };
+            options.TokenValidationParameters.ValidAudiences = validAudiences
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
         });
 
         builder.Services.AddAuthorization();
         builder.Services.AddHttpContextAccessor();
         builder.Services.AddScoped<IApplicationUserResolver, ApplicationUserResolver>();
+        builder.Services.AddScoped<IIGImportService, IGImportService>();
         
         builder.Services.AddCors(options =>
         {
